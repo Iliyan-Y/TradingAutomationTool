@@ -21,7 +21,7 @@ func (a *AlpacaBasic) Buy() bool {
     wg.Done()
   }()
   go func() {
-    log.Println("💸💸💸💸")
+    log.Printf("%s 💸💸💸💸", a.Symbol)
     wg.Done()
   }()
   wg.Wait()
@@ -33,5 +33,6 @@ func (a *AlpacaBasic) Sell() bool {
 	//todo implement the logic for alpaca sell
 	helpers.PlaySound(helpers.MONEY_IN)
 	helpers.PrintCashIn()
+	log.Printf("%s SOLD", a.Symbol)
 	return false
 }
