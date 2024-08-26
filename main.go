@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 	"net/http"
+	orders "stockApp/Orders"
+	strategies "stockApp/Strategies"
 	"time"
 
 	"github.com/coder/websocket"
@@ -11,8 +13,28 @@ import (
 )
 
 func main() {
-	//urlTest := "wss://stream.data.alpaca.markets/v2/test"
-	url := "wss://stream.data.alpaca.markets/v2/iex"
+	basicStrategy := strategies.Basic{
+		OpeningPrice: 100,
+		ClosingPrice: 80,
+		Threshold: 20,
+	}
+
+	order := orders.AlpacaBasic{
+		Symbol: "AAPL",
+		Price: 100,
+		Quantity: 10,
+	}
+
+	validStrategy := basicStrategy.Validate()
+
+	if(validStrategy) {
+		order.Buy()
+	}else {
+		order.Sell()
+	}
+	return
+	url := "wss://stream.data.alpaca.markets/v2/test"
+	//url := "wss://stream.data.alpaca.markets/v2/iex"
 	envFile, _ := godotenv.Read(".env")
 
 	keyID, ok := envFile["ALPACA_API_KEY"]
@@ -43,10 +65,11 @@ func main() {
 	}
 	defer conn.Close(websocket.StatusNormalClosure, "");
 
-	//subscribeMsg := `{"action":"subscribe","trades":["FAKEPACA"]}`
-	msg2 := `{"action":"subscribe","trades":["AAPL","TSLA"],"quotes":["AMD","CLDR"],"bars":["*"]}`
+	subscribeMsg := `{"action":"subscribe","bars":["*"]}`
+	//subscribeMsg := `{"action":"subscribe","trades":["FAKEPACA"],"quotes":["FAKEPACA"],"bars":["*"]}`
+	//subscribeMsg := `{"action":"subscribe","trades":["AAPL","TSLA"],"quotes":["AMD","CLDR"],"bars":["*"]}`
 
-	err = conn.Write(ctx, websocket.MessageBinary, []byte(msg2) )
+	err = conn.Write(ctx, websocket.MessageBinary, []byte(subscribeMsg) )
 	if err != nil {
 		log.Fatal("write:", err)
 	}
